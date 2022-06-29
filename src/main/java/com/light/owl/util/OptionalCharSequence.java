@@ -143,7 +143,7 @@ public final class OptionalCharSequence {
   public <U> Optional<U> flatMap(
       Function<? super CharSequence, ? extends Optional<? extends U>> mapper) {
     Objects.requireNonNull(mapper);
-    if (isPresent()) {
+    if (!isPresent()) {
       return Optional.empty();
     } else {
       @SuppressWarnings("unchecked")
@@ -156,7 +156,7 @@ public final class OptionalCharSequence {
    * 转stream流
    */
   public Stream<CharSequence> stream() {
-    if (isPresent()) {
+    if (!isPresent()) {
       return Stream.empty();
     } else {
       return Stream.of(value);
