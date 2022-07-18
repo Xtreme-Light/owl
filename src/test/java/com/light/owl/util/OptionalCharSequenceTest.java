@@ -120,13 +120,80 @@ public class OptionalCharSequenceTest {
             () -> System.out.println("run this way"));
     assert "abc".equals(OptionalCharSequence.of("abc").notBlankStringOrElse("bcd"));
     assert "bcd".equals(OptionalCharSequence.of("   ").notBlankStringOrElse("bcd"));
+    OptionalCharSequence.of("abc")
+        .ifNotEmptyString(
+            v -> {
+              assert v.equals("abc");
+            });
+
+    OptionalCharSequence.of("abc")
+        .ifNotEmpty(
+            v -> {
+              assert "abc".contentEquals(v);
+            });
+    assert "abc".contentEquals(OptionalCharSequence.of("abc").notEmptyStringOrElse("bcd"));
+    assert "bcd".contentEquals(OptionalCharSequence.of("").notEmptyStringOrElse("bcd"));
+
+    OptionalCharSequence.of("abc")
+        .ifNotEmptyOrElse(
+            v -> {
+              assert "abc".contentEquals(v);
+            },
+            () -> {
+              throw new RuntimeException();
+            });
+    OptionalCharSequence.of("abc")
+        .ifNotEmptyStringOrElse(
+            v -> {
+              assert "abc".equals(v);
+            },
+            () -> {
+              throw new RuntimeException();
+            });
+    OptionalCharSequence.of("abc")
+        .ifPresent(
+            v -> {
+              assert "abc".contentEquals(v);
+            });
+    OptionalCharSequence.of("abc")
+        .ifPresentString(
+            v -> {
+              assert "abc".equals(v);
+            });
+    OptionalCharSequence.of("abc")
+        .ifPresentOrElse(
+            v -> {
+              assert "abc".contentEquals(v);
+            },
+            () -> {
+              throw new RuntimeException();
+            });
+
+    OptionalCharSequence.of("abc")
+        .ifPresentStringOrElse(
+            v -> {
+              assert "abc".equals(v);
+            },
+            () -> {
+              throw new RuntimeException();
+            });
+  }
+
+  @Test
+  public void testFilter() {
+    assert !OptionalCharSequence.of("abcd").filter(v -> v.length() > 0).isBlank();
+    assert !OptionalCharSequence.of("abcd").stringFilter(v -> v.contains("abc")).isBlank();
+    assert !OptionalCharSequence.of("abcd").notEmptyStringFilter(v -> v.contains("abc")).isBlank();
+    assert !OptionalCharSequence.of("abcd").notBlankStringFilter(v -> v.contains("abc")).isBlank();
   }
 
   @Test(expected = EmptyCharSequenceException.class)
   public void testEmptyException() {
-    OptionalCharSequence.ofNullable("").notEmptyOrElseThrow();
     assert "123".contentEquals(OptionalCharSequence.ofNullable("123").notEmptyOrElseThrow());
     assert "123".equals(OptionalCharSequence.ofNullable("123").notEmptyStringOrElseThrow());
+    OptionalCharSequence.ofNullable("").notEmptyOrElseThrow(EmptyCharSequenceException::new);
+    OptionalCharSequence.ofNullable("123")
+        .notEmptyStringOrElseThrow(EmptyCharSequenceException::new);
   }
 
   @Test(expected = BlankCharSequenceException.class)
@@ -157,13 +224,15 @@ public class OptionalCharSequenceTest {
                 .notBlankOrElseThrow(EmptyCharSequenceException::new));
     OptionalCharSequence.ofNullable("  ").notBlankOrElseThrow(EmptyCharSequenceException::new);
   }
+
   @Test(expected = EmptyCharSequenceException.class)
   public void testSupplierException2() {
     assert "123"
         .equals(
             OptionalCharSequence.ofNullable("123")
                 .notBlankStringOrElseThrow(EmptyCharSequenceException::new));
-    OptionalCharSequence.ofNullable("  ").notBlankStringOrElseThrow(EmptyCharSequenceException::new);
+    OptionalCharSequence.ofNullable("  ")
+        .notBlankStringOrElseThrow(EmptyCharSequenceException::new);
   }
 
   @Test(expected = NotStringException.class)

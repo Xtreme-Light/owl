@@ -80,6 +80,13 @@ public final class OptionalCharSequence {
     }
   }
 
+  /** 如果不为空 do action */
+  public void ifPresentString(Consumer<? super String> action) {
+    if (value != null && string) {
+      action.accept((String) value);
+    }
+  }
+
   /** 如果不为空 do action，else do emptyAction */
   public void ifPresentOrElse(Consumer<? super CharSequence> action, Runnable emptyAction) {
     if (value != null) {
@@ -89,13 +96,32 @@ public final class OptionalCharSequence {
     }
   }
 
+  /** 如果不为空 do action，else do emptyAction */
+  public void ifPresentStringOrElse(Consumer<? super String> action, Runnable emptyAction) {
+    if (string && value != null) {
+      action.accept((String) value);
+      return;
+    }
+    emptyAction.run();
+  }
+
   /** 筛选器，基于非null */
   public OptionalCharSequence filter(Predicate<? super CharSequence> predicate) {
     Objects.requireNonNull(predicate);
-    if (isPresent()) {
+    if (!isPresent()) {
       return this;
     } else {
       return predicate.test(value) ? this : empty();
+    }
+  }
+
+  /** 筛选器，基于非null */
+  public OptionalCharSequence stringFilter(Predicate<? super String> predicate) {
+    Objects.requireNonNull(predicate);
+    if (!isPresent() || !string) {
+      return this;
+    } else {
+      return predicate.test((String) value) ? this : empty();
     }
   }
 
@@ -108,12 +134,30 @@ public final class OptionalCharSequence {
     }
   }
 
+  public OptionalCharSequence notEmptyStringFilter(Predicate<? super String> predicate) {
+    Objects.requireNonNull(predicate);
+    if (empty || !string) {
+      return this;
+    } else {
+      return predicate.test((String) value) ? this : empty();
+    }
+  }
+
   public OptionalCharSequence notBlankFilter(Predicate<? super CharSequence> predicate) {
     Objects.requireNonNull(predicate);
     if (blank) {
       return this;
     } else {
       return predicate.test(value) ? this : empty();
+    }
+  }
+
+  public OptionalCharSequence notBlankStringFilter(Predicate<? super String> predicate) {
+    Objects.requireNonNull(predicate);
+    if (blank || !string) {
+      return this;
+    } else {
+      return predicate.test((String) value) ? this : empty();
     }
   }
 
@@ -154,12 +198,28 @@ public final class OptionalCharSequence {
     return value != null ? value : other;
   }
 
+  /** 如果为null 提供其他的值 */
+  public String orElseString(String other) {
+    return value != null ? string ? (String) value : other : other;
+  }
+
   /** 获取容器内容 */
   public CharSequence get() {
     if (value == null) {
       throw new NoSuchElementException("No value present");
     }
     return value;
+  }
+
+  /** 获取容器内容 */
+  public String getString() {
+    if (value == null) {
+      throw new NoSuchElementException("No value present");
+    }
+    if (!string) {
+      throw new NotStringException();
+    }
+    return (String) value;
   }
 
   /** 是否为空字符 */
@@ -187,7 +247,7 @@ public final class OptionalCharSequence {
 
   /** 如果为空字符 提供其他的值 */
   public String notEmptyStringOrElse(String other) {
-    return string ? (String) notEmptyOrElse(value) : other;
+    return string ? (String) notEmptyOrElse(other) : other;
   }
 
   /** 如果不为空 do action，else do emptyAction */

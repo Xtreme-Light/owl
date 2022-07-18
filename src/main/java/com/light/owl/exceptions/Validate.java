@@ -1,10 +1,10 @@
 package com.light.owl.exceptions;
 
-public interface Validate<T> {
+/** 校验规则接口 */
+public interface Validate {
 
-  boolean verify(T t);
 
-  T get();
+  boolean verify();
 
-  RuntimeException exception();
+  RuntimeException runtimeException();
 }
