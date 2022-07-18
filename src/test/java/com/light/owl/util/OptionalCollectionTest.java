@@ -15,19 +15,56 @@ public class OptionalCollectionTest {
 
   @Test(expected = EmptyCollectionException.class)
   public void testException3() {
+    final Cargo cargo1 = new Cargo("杯子", "美国", 100);
+    final Cargo cargo2 = new Cargo("被子", "韩国", 99);
+    final List<Cargo> arrayList = new ArrayList<>();
+    arrayList.add(cargo1);
+    arrayList.add(cargo2);
+    assert 2 == OptionalCollection.ofNullable(arrayList).orElseThrow().size();
     OptionalCollection.ofNullable(null).orElseThrow();
   }
 
   @Test(expected = EmptyCollectionException.class)
   public void testException4() {
+    final Cargo cargo1 = new Cargo("杯子", "美国", 100);
+    final Cargo cargo2 = new Cargo("被子", "韩国", 99);
+    final List<Cargo> arrayList = new ArrayList<>();
+    arrayList.add(cargo1);
+    arrayList.add(cargo2);
+    assert 2 == OptionalCollection.ofNullable(arrayList).notEmptyOrElseThrow().size();
     OptionalCollection.ofNullable(new ArrayList<>()).notEmptyOrElseThrow();
+  }
+
+  @Test(expected = EmptyCollectionException.class)
+  public void testException5() {
+    final Cargo cargo1 = new Cargo("杯子", "美国", 100);
+    final Cargo cargo2 = new Cargo("被子", "韩国", 99);
+    final List<Cargo> arrayList = new ArrayList<>();
+    arrayList.add(cargo1);
+    arrayList.add(cargo2);
+    assert 2
+        == OptionalCollection.ofNullable(arrayList)
+            .notEmptyOrElseThrow(EmptyCollectionException::new)
+            .size();
+    OptionalCollection.ofNullable(new ArrayList<>())
+        .notEmptyOrElseThrow(EmptyCollectionException::new);
   }
 
   @Test
   public void testException2() {
     final Cargo cargo1 = new Cargo("杯子", "美国", 100);
-    final List<? extends String> collect = OptionalCollection.of(List.of(cargo1))
-        .map(Cargo::getName).collect(Collectors.toList());
+    final List<? extends String> collect =
+        OptionalCollection.of(List.of(cargo1)).map(Cargo::getName).collect(Collectors.toList());
+    assert collect.size() == 1;
+  }
+
+  @Test
+  public void testStream() {
+    final Cargo cargo1 = new Cargo("杯子", "美国", 100);
+    final List<? extends String> collect =
+        OptionalCollection.of(List.of(cargo1)).stream()
+            .map(Cargo::getName)
+            .collect(Collectors.toList());
     assert collect.size() == 1;
   }
 
@@ -49,23 +86,21 @@ public class OptionalCollectionTest {
     final List<Cargo> cargos = of.notEmptyOrElse(new ArrayList<>());
     assert cargos.size() == 2;
 
-    final List<? extends Cargo> collect1 = of.filter(v -> v.weight == 100)
-        .collect(Collectors.toList());
+    final List<? extends Cargo> collect1 =
+        of.filter(v -> v.weight == 100).collect(Collectors.toList());
     assert !collect1.isEmpty();
     assert collect1.size() == 1;
 
-    of.ifNotEmptyOrElse(System.out::println, () -> {
-      System.out.println(" got empty");
-    });
-
+    of.ifNotEmptyOrElse(
+        System.out::println,
+        () -> {
+          System.out.println(" got empty");
+        });
   }
-
 
   public static class Cargo {
 
-    private Cargo() {
-
-    }
+    private Cargo() {}
 
     public Cargo(String name, String target, int weight) {
       this.name = name;
@@ -103,11 +138,16 @@ public class OptionalCollectionTest {
 
     @Override
     public String toString() {
-      return "Cargo{" +
-          "name='" + name + '\'' +
-          ", target='" + target + '\'' +
-          ", weight=" + weight +
-          '}';
+      return "Cargo{"
+          + "name='"
+          + name
+          + '\''
+          + ", target='"
+          + target
+          + '\''
+          + ", weight="
+          + weight
+          + '}';
     }
   }
 
@@ -130,12 +170,18 @@ public class OptionalCollectionTest {
 
     @Override
     public String toString() {
-      return "InternationalCargo{" +
-          "international=" + international +
-          ", name='" + super.name + '\'' +
-          ", target='" + super.target + '\'' +
-          ", weight=" + super.weight +
-          '}';
+      return "InternationalCargo{"
+          + "international="
+          + international
+          + ", name='"
+          + super.name
+          + '\''
+          + ", target='"
+          + super.target
+          + '\''
+          + ", weight="
+          + super.weight
+          + '}';
     }
   }
 }

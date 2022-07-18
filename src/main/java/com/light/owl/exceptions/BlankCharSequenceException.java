@@ -1,8 +1,7 @@
 package com.light.owl.exceptions;
 
-import java.io.Serializable;
 
-public class BlankCharSequenceException extends RuntimeException implements Serializable {
+public class BlankCharSequenceException extends RuntimeException  {
 
   public BlankCharSequenceException() {
     super();
